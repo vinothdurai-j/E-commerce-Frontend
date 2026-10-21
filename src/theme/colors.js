@@ -1,0 +1,18 @@
+export const colors = {
+  canvas: "#F7F3EE",
+  stage: "#EBE4DA",
+  card: "#FFFFFF",
+  pill: "#847366",
+  display: "#1D1B1A",
+  body: "#302D2B",
+  muted: "#7B7571",
+  subtle: "#A69F98",
+  inverse: "#FFFFFF",
+  terracotta: "#C88756",
+  sand: "#D9CEBE",
+  line: "#ECE4DA",
+  lineCard: "#E4DCD2",
+  success: "#5E8C61",
+  error: "#B3472F",
+  warning: "#D4A24C",
+};

@@ -1,15 +1,15 @@
-import React from 'react'
+import { Toaster } from "react-hot-toast";
+import AppRoutes from "@/routes/AppRoutes";
+import ScrollToTop from "@/components/common/ScrollToTop";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import { toastOptions } from "@/utils/toast";
 
-const App = () => {
+export default function App() {
   return (
-    <div>App
-
-  <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
-
-    </div>
-  )
+    <ErrorBoundary>
+      <ScrollToTop />
+      <AppRoutes />
+      <Toaster position="top-right" toastOptions={toastOptions} />
+    </ErrorBoundary>
+  );
 }
-
-export default App
