@@ -25,7 +25,7 @@ export default function Footer() {
     <footer className="mt-16 border-t border-line bg-stage">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-2">
-          <p className="font-heading text-2xl font-semibold text-display">Hazy</p>
+          <p className="font-heading text-2xl font-semibold text-display">SHILOH</p>
           <p className="mt-3 max-w-sm text-sm text-body">
             Handcrafted footwear in earthy, timeless designs. Walk in comfort, every day.
           </p>
@@ -50,7 +50,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-line-card py-4 text-center text-xs text-body">
-        © {new Date().getFullYear()} Hazy. All rights reserved.
+        © {new Date().getFullYear()} SHILOH. All rights reserved.
       </div>
     </footer>
   );

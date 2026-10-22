@@ -15,4 +15,7 @@ export const colors = {
   success: "#5E8C61",
   error: "#B3472F",
   warning: "#D4A24C",
+  clay: "#C4A58C",
+  cream: "#F3EDE5",
+  creamSoft: "#FAF7F3",
 };

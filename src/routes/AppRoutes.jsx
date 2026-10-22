@@ -49,6 +49,10 @@ export default function AppRoutes() {
             <Route path={ROUTES.ORDERS} element={<Orders />} />
             <Route path={ROUTES.WISHLIST} element={<Wishlist />} />
             <Route path={ROUTES.PROFILE} element={<Profile />} />
+            <Route path={ROUTES.CATEGORY} element={<Products />} />
+<Route path={ROUTES.SUBCATEGORY} element={<Products />} />
+<Route path={ROUTES.OFFERS} element={<Products />} />
+<Route path={ROUTES.SEARCH} element={<Products />} />
           </Route>
         </Route>
 

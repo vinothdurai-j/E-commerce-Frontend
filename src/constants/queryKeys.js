@@ -3,6 +3,7 @@ export const queryKeys = {
     all: ["products"],
     list: (filters) => ["products", "list", filters],
     detail: (id) => ["products", "detail", id],
+    suggestions: (term) => ["products", "suggestions", term],
   },
   categories: ["categories"],
   cart: ["cart"],
