@@ -1,2 +1,32 @@
 @import "tailwindcss";
 @import "./styles/theme.css";
+
+
+/* ===== Append this to the END of src/index.css (after @import "tailwindcss") ===== */
+@theme {
+  --animate-float-slow: float-slow 9s ease-in-out infinite;
+  --animate-float-medium: float-medium 6.5s ease-in-out infinite;
+  --animate-badge-sway: badge-sway 7s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 70s linear infinite;
+  --animate-collage-in: collage-in 1.1s ease-out 0.25s both;
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(calc(var(--u, 1) * -12px)); }
+  }
+  @keyframes float-medium {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(calc(var(--u, 1) * -18px)) rotate(1.5deg); }
+  }
+  @keyframes badge-sway {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(calc(var(--u, 1) * -8px)) rotate(4deg); }
+  }
+  @keyframes spin-slow {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes collage-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

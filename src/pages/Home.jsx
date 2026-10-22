@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import heroImg from "@/assets/images/Hero-1.png";
 import ServiceBenefits from "@/components/home/ServiceBenefits";
+import HeroFloatingCollage from "@/components/home/HeroFloatingCollage";
 import Button from "@/components/common/Button";
 import { ROUTES } from "@/constants/routes";
 
@@ -16,8 +17,11 @@ export default function Home() {
       />
       <div className="absolute inset-0 -z-10 bg-canvas/30" />
 
+      {/* floating product collage (above background, below text) */}
+      <HeroFloatingCollage />
+
       {/* headline + CTA */}
-      <div className="mx-auto flex w-full max-w-7xl flex-1 items-center px-6 pb-8 pt-16 lg:pb-40">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-6 pb-8 pt-16 lg:pb-40">
         <div>
           <h1 className="font-heading text-4xl leading-tight text-display sm:text-5xl lg:text-7xl">
             Upgrade Your Style
@@ -38,13 +42,12 @@ export default function Home() {
       </div>
 
       {/* service cards: mobile-la normal flow, desktop-la bottom-ku absolute */}
-      <div className="mx-auto w-full max-w-7xl px-6 pb-6 lg:absolute lg:inset-x-0 lg:bottom-8 lg:pb-0">
+      <div className="z-10 mx-auto w-full max-w-7xl px-6 pb-6 lg:absolute lg:inset-x-0 lg:bottom-8 lg:pb-0">
         <ServiceBenefits />
       </div>
     </section>
   );
 }
-
 
 
 
