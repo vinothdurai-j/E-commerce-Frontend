@@ -5,6 +5,8 @@ import speakerImg from "@/assets/images/ft-speker.png";
 import cameraImg from "@/assets/images/ft-gopro.png";
 import sunglassImg from "@/assets/images/ft-sunglass.png"; // change to ft-sunglass.png to switch image
 import jacketImg from "@/assets/images/ft-jackt.png";
+import jacketImg2 from "@/assets/images/ft-jackt2.png";
+
 import shopperImg from "@/assets/images/ft-purchase-4.png";
 import sofaImg from "@/assets/images/ft-discount.png";
 
@@ -166,6 +168,7 @@ export default function HeroFloatingCollage() {
           delay="-1.5s"
           className="hidden lg:block"
         />
+         
         <Product
           src={cameraImg}
           x={1230}
@@ -209,7 +212,16 @@ export default function HeroFloatingCollage() {
           delay="-6s"
           className="hidden xl:block"
         />
-
+  <Product
+          src={jacketImg2}
+          x={1450}
+          y={95}
+          w={200}
+          rotate={-10}
+          anim="animate-float-medium"
+          delay="-1.5s"
+          className="hidden lg:block"
+        />
         {/* lower-left floor (free now that the camera moved up) */}
         {SHOW_SUNGLASS && (
           <Product
