@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import heroImg from "@/assets/images/Hero-1.png";
 import ServiceBenefits from "@/components/home/ServiceBenefits";
-import HeroFloatingCollage from "@/components/home/HeroFloatingCollage";
+import HeroFloatingCollage from "@/components/home/Herofloatingcollage";
+import ShopByCategory from "@/components/home/ShopByCategory";
+import CollectionBanner from "@/components/home/CollectionBanner";
 import Button from "@/components/common/Button";
 import { ROUTES } from "@/constants/routes";
 
 export default function Home() {
   return (
+    <>
     <section className="relative isolate left-1/2 flex min-h-[calc(100vh-8rem)] w-screen -translate-x-1/2 flex-col overflow-hidden">
       {/* background image + overlay */}
       <img
@@ -46,10 +49,25 @@ export default function Home() {
         <ServiceBenefits />
       </div>
     </section>
+
+    <ShopByCategory />
+    <CollectionBanner />
+    </>
   );
 }
 
 
+
+//    <div>
+//            <section className="bg-hero min-h-screen px-6 py-16">
+//       <h1 className="font-heading text-5xl text-display">Walk in Comfort</h1>
+//       <p className="mt-2 text-muted">Handcrafted footwear</p>
+// <h1 className="font-heading text-5xl text-display p-10">Home</h1>
+//       <button className="mt-6 rounded-full bg-pill px-4 py-2 text-inverse transition hover:bg-terracotta">
+//         Shop Now
+//       </button>
+//     </section>
+//     </div>
 
 //    <div>
 //            <section className="bg-hero min-h-screen px-6 py-16">

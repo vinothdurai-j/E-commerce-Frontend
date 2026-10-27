@@ -212,16 +212,7 @@ export default function HeroFloatingCollage() {
           delay="-6s"
           className="hidden xl:block"
         />
-  <Product
-          src={jacketImg2}
-          x={1450}
-          y={95}
-          w={200}
-          rotate={-10}
-          anim="animate-float-medium"
-          delay="-1.5s"
-          className="hidden lg:block"
-        />
+
         {/* lower-left floor (free now that the camera moved up) */}
         {SHOW_SUNGLASS && (
           <Product
@@ -245,6 +236,7 @@ export default function HeroFloatingCollage() {
           anim="animate-badge-sway"
           delay="-1s"
         />
+        
         <Badge
           x={1545}
           y={185}
