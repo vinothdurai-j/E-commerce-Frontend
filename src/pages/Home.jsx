@@ -9,6 +9,11 @@ import Button from "@/components/common/Button";
 import { ROUTES } from "@/constants/routes";
 import { useBestSellers } from "@/hooks/useBestSellers";
 import { useWishlist } from "@/hooks/useWishlist";
+import CategoryShowcase from "@/components/home/CategoryShowcase";
+import StickyOverlay from "@/components/home/StickyOverlay";
+import Discountbanner from "@/components/home/Discountbanner";
+  import NewCollection from "@/components/home/NewCollection";
+import Testimonials from "@/components/home/Testimonials";
 
 export default function Home() {
   const { data, isLoading } = useBestSellers();
@@ -58,8 +63,10 @@ export default function Home() {
           <ServiceBenefits />
         </div>
       </section>
-
+  
+       <StickyOverlay base={<CategoryShowcase />}>
       <ShopByCategory />
+   
 
     
 
@@ -70,6 +77,12 @@ export default function Home() {
         wishlistIds={ids}
         onToggleWishlist={toggle}
       />
+</StickyOverlay>
+       <StickyOverlay base={<Discountbanner />}>
+</StickyOverlay>
+    <NewCollection />
+
+      <Testimonials />
     </>
   );
 }

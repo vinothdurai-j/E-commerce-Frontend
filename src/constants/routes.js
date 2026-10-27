@@ -14,9 +14,9 @@ export const ROUTES = {
   WISHLIST: "/wishlist",
   PROFILE: "/profile",
 
-  LOGIN: "/login",
-  REGISTER: "/register",
-  FORGOT_PASSWORD: "/forgot-password",
+  LOGIN: "/pages/auth/Login",
+  REGISTER: "/pages/auth/Register",
+  FORGOT_PASSWORD: "/pages/auth/ForgotPassword",
 
   ABOUT: "/about",
   CONTACT: "/contact",
