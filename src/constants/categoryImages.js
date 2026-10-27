@@ -11,12 +11,13 @@
  * everything else is an isolated product shown with `object-contain`.
  * A slug with no entry (e.g. "toys-and-kids") renders a lettered placeholder.
  */
-import men from "@/assets/images/ft-jackt2.png";
-import women from "@/assets/images/ft-purchase-3.png";
-import electronics from "@/assets/images/ft-speker.png";
+import men from "@/assets/images/Men’s01.png";
+import women from "@/assets/images/Women's01.png";
+import electronics from "@/assets/images/ectronics.png";
 import home from "@/assets/images/ft-chair.jpg";
-import beauty from "@/assets/images/ft-pefume.png";
-import sports from "@/assets/images/ft-sunglass.png";
+import beauty from "@/assets/images/beatuty.png";
+import sports from "@/assets/images/sport&fitnes02.png";
+import toys from "@/assets/images/toys&kids (2).png";
 
 export const CATEGORY_IMAGES = {
   men: { src: men },
@@ -25,4 +26,5 @@ export const CATEGORY_IMAGES = {
   "home-and-living": { src: home, fit: "cover" },
   "beauty-and-personal-care": { src: beauty },
   "sports-and-fitness": { src: sports },
+  "toys-and-kids": { src: toys },
 };
