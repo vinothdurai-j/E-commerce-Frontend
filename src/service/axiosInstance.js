@@ -3,18 +3,17 @@ import { env } from "@/config/env";
 import { tokenStorage } from "@/utils/tokenStorage";
 import { notify } from "@/utils/toast";
 
-const api = axios.create({
+const axiosInstance = axios.create({
   baseURL: env.API_URL,
   timeout: 15000,
 });
-
-api.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use((config) => {
   const token = tokenStorage.get();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-api.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (res) => res.data,
   (err) => {
     const status = err.response?.status;
@@ -32,4 +31,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default axiosInstance;

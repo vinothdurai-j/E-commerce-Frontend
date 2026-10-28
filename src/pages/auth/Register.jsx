@@ -1,8 +1,10 @@
 import { useEffect, useId, useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Loader2, Lock, Mail, Phone, User } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/utils/cn";
+import useRegister from "@/hooks/useRegister";
+import { notify } from "@/utils/toast"; // change to the real path of your toast file
 /*
  * IMAGE: same background as the login page. Change the file name here if you want
  * a different one for register. Names are case-sensitive on deploy.
@@ -11,13 +13,16 @@ import registerBg from "@/assets/images/login-03.png";
 
 const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MOBILE_PATTERN = /^[6-9]\d{9}$/; // 10-digit Indian mobile number
 const MIN_PASSWORD = 8;
 
-function validate({ name, email, password, confirm, agree }) {
+function validate({ name, email, mobile, password, confirm, agree }) {
   const errors = {};
   if (!name.trim()) errors.name = "Full name is required.";
   if (!email.trim()) errors.email = "Email is required.";
   else if (!EMAIL_PATTERN.test(email.trim())) errors.email = "Enter a valid email address.";
+  if (!mobile) errors.mobile = "Mobile number is required.";
+  else if (!MOBILE_PATTERN.test(mobile)) errors.mobile = "Enter a valid 10-digit mobile number.";
   if (!password) errors.password = "Password is required.";
   else if (password.length < MIN_PASSWORD)
     errors.password = `Use at least ${MIN_PASSWORD} characters.`;
@@ -112,18 +117,20 @@ function Field({
 }
 
 /*
- * Props:
- *  - onSubmit({ name, email, password }): async. Plug in your real register call here.
- *      Resolve on success (redirect inside it), throw an Error with a friendly message on failure.
+ * Props (both optional):
+ *  - onSubmit({ name, email, mobile, password }): if a parent passes it, it is used instead of the built-in API call.
  *  - onGoogleSignIn(): plug in your real OAuth start here.
- * Without these props the page shows a notice instead of pretending to register.
+ * Without onSubmit, the page registers through the useRegister hook (TanStack Query -> service).
  */
 export default function RegisterPage({ onSubmit, onGoogleSignIn, className }) {
   const agreeId = useId();
+  const navigate = useNavigate();
+  const { register } = useRegister();
 
   const [values, setValues] = useState({
     name: "",
     email: "",
+    mobile: "",
     password: "",
     confirm: "",
     agree: false,
@@ -142,7 +149,10 @@ export default function RegisterPage({ onSubmit, onGoogleSignIn, className }) {
   const showError = (field) => (touched[field] ? errors[field] : "");
 
   const handleChange = (e) => {
-    const { name, type, checked, value } = e.target;
+    const { name, type, checked } = e.target;
+    let value = e.target.value;
+    // mobile: digits only, max 10
+    if (name === "mobile") value = value.replace(/\D/g, "").slice(0, 10);
     setFormError("");
     setValues((v) => ({ ...v, [name]: type === "checkbox" ? checked : value }));
   };
@@ -151,23 +161,36 @@ export default function RegisterPage({ onSubmit, onGoogleSignIn, className }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return; // block duplicate submissions
-    setTouched({ name: true, email: true, password: true, confirm: true, agree: true });
+    setTouched({
+      name: true,
+      email: true,
+      mobile: true,
+      password: true,
+      confirm: true,
+      agree: true,
+    });
     if (Object.keys(errors).length) return;
 
-    if (!onSubmit) {
-      setFormError("Registration isn't connected to the backend yet.");
-      return;
-    }
     setSubmitting(true);
     setFormError("");
     try {
-      await onSubmit({
+      const payload = {
         name: values.name.trim(),
         email: values.email.trim(),
+        mobile: values.mobile,
         password: values.password,
-      });
+      };
+      if (onSubmit) {
+        await onSubmit(payload);
+      } else {
+        await register(payload);
+        notify.success("Account created successfully. Please log in.");
+        navigate(ROUTES.LOGIN, { replace: true });
+      }
     } catch (err) {
-      setFormError(err?.message || "We couldn't create your account. Please try again.");
+      const message = err?.message || "We couldn't create your account. Please try again.";
+      setFormError(message);
+      notify.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -214,7 +237,7 @@ export default function RegisterPage({ onSubmit, onGoogleSignIn, className }) {
               Join SHILOH for new arrivals, offers and faster checkout.
             </p>
 
-            {/* fields sit in two columns from sm up: name + email, password + confirm */}
+            {/* name + email, mobile (full width), password + confirm */}
             <form
               onSubmit={handleSubmit}
               noValidate
@@ -244,6 +267,23 @@ export default function RegisterPage({ onSubmit, onGoogleSignIn, className }) {
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
+
+              <div className="sm:col-span-2">
+                <Field
+                  label="Mobile number"
+                  name="mobile"
+                  type="tel"
+                  inputMode="numeric"
+                  icon={Phone}
+                  autoComplete="tel-national"
+                  placeholder="Enter your 10-digit mobile number"
+                  value={values.mobile}
+                  error={showError("mobile")}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                />
+              </div>
+
               <Field
                 label="Password"
                 name="password"

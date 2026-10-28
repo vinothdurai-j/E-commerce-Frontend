@@ -1,13 +1,17 @@
-// users/forgotPassword.js
+// service/users/forgotPassword.js
 import axiosInstance from "../axiosInstance";
 
-const forgotPassword = async (payload) => {
+const forgotPassword = async ({ email }) => {
   try {
-    const response = await axiosInstance.post("/forgot-password", payload);
+    const response = await axiosInstance.post(
+      "/forgot-password",
+      { email: email.trim() },
+      { silent: true }
+    );
     return response?.data;
-  } catch (err) {
-    console.log(err);
-    throw err;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 

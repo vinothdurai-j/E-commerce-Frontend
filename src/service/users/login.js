@@ -1,13 +1,19 @@
-// users/login.js
 import axiosInstance from "../axiosInstance";
 
-const login = async (payload) => {
+const login = async ({ identifier, password }) => {
   try {
-    const response = await axiosInstance.post("/login", payload);
+    const response = await axiosInstance.post(
+      "/login",
+      {
+        identifier: identifier.trim(),
+        password,
+      },
+      { silent: true }
+    );
     return response?.data;
-  } catch (err) {
-    console.log(err);
-    throw err;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 

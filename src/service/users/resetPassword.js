@@ -1,13 +1,24 @@
-// users/resetPassword.js
+// service/users/resetPassword.js
 import axiosInstance from "../axiosInstance";
 
-const resetPassword = async (payload) => {
+// Backend: POST /v1/reset-password, validated by resetPasswordValidation
+// -> { email, otp, password, confirmPassword }
+const resetPassword = async ({ email, otp, password }) => {
   try {
-    const response = await axiosInstance.post("/reset-password", payload);
+    const response = await axiosInstance.post(
+      "/reset-password",
+      {
+        email: email.trim(),
+        otp,
+        password,
+        confirmPassword: password,
+      },
+      { silent: true }
+    );
     return response?.data;
-  } catch (err) {
-    console.log(err);
-    throw err;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 

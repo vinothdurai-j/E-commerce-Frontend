@@ -1,8 +1,11 @@
 import { useEffect, useId, useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/utils/cn";
+import { tokenStorage } from "@/utils/tokenStorage";
+import useLogin from "@/hooks/useLogin";
+import { notify } from "@/utils/toast"; // change to the real path of your toast file
 /*
  * IMAGE: assumes BG-Login.png is in src/assets/images/. File names are case-sensitive
  * on Linux/Vercel/Netlify, so the name below must match the real file exactly.
@@ -10,19 +13,27 @@ import { cn } from "@/utils/cn";
 import loginBg from "@/assets/images/login-01.png";
 
 /*
- * ROUTES: I could only confirm ROUTES.PRODUCTS exists. The two paths below use your
- * route constants if they exist, otherwise the fallback strings. Align them with your router.
+ * ROUTES: the paths below use your route constants if they exist, otherwise the
+ * fallback strings. Align them with your router.
  */
 const SIGNUP_PATH = ROUTES.REGISTER ?? "/register";
 const FORGOT_PATH = ROUTES.FORGOT_PASSWORD ?? "/forgot-password";
+const HOME_PATH = ROUTES.HOME ?? "/";
 
 const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MOBILE_PATTERN = /^[6-9]\d{9}$/; // 10-digit Indian mobile number
 
-function validate({ email, password }) {
+/* identifier = email OR 10-digit mobile number (matches backend loginValidation) */
+function validate({ identifier, password }) {
   const errors = {};
-  if (!email.trim()) errors.email = "Email is required.";
-  else if (!EMAIL_PATTERN.test(email.trim())) errors.email = "Enter a valid email address.";
+  const value = identifier.trim();
+  if (!value) errors.identifier = "Email or mobile number is required.";
+  else if (value.includes("@")) {
+    if (!EMAIL_PATTERN.test(value)) errors.identifier = "Enter a valid email address.";
+  } else if (!MOBILE_PATTERN.test(value)) {
+    errors.identifier = "Enter a valid email or 10-digit mobile number.";
+  }
   if (!password) errors.password = "Password is required.";
   return errors;
 }
@@ -39,18 +50,18 @@ function GoogleLogo() {
 }
 
 /*
- * Props:
- *  - onSubmit({ email, password }): async. Plug in your real login call here.
- *      Resolve on success (do the redirect/token handling inside it), throw an Error
- *      with a user-friendly message on failure.
+ * Props (both optional):
+ *  - onSubmit({ identifier, password }): if a parent passes it, it is used instead of the built-in API call.
  *  - onGoogleSignIn(): plug in your real OAuth start here.
- * Without these props the page shows a notice instead of pretending to log in.
+ * Without onSubmit, the page logs in through the useLogin hook (TanStack Query -> service).
  */
 export default function LoginPage({ onSubmit, onGoogleSignIn, className }) {
-  const emailId = useId();
+  const identifierId = useId();
   const passwordId = useId();
+  const navigate = useNavigate();
+  const { login } = useLogin();
 
-  const [values, setValues] = useState({ email: "", password: "" });
+  const [values, setValues] = useState({ identifier: "", password: "" });
   const [touched, setTouched] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -75,19 +86,41 @@ export default function LoginPage({ onSubmit, onGoogleSignIn, className }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return; // block duplicate submissions
-    setTouched({ email: true, password: true });
+    setTouched({ identifier: true, password: true });
     if (Object.keys(errors).length) return;
 
-    if (!onSubmit) {
-      setFormError("Login isn't connected to the backend yet.");
-      return;
-    }
     setSubmitting(true);
     setFormError("");
     try {
-      await onSubmit({ email: values.email.trim(), password: values.password });
+      const payload = {
+        identifier: values.identifier.trim(),
+        password: values.password,
+      };
+      if (onSubmit) {
+        await onSubmit(payload);
+      } else {
+      const data = await login(payload);
+
+// Save the access token after successful login
+const accessToken =
+  data?.accessToken ??
+  data?.token ??
+  data?.data?.accessToken ??
+  data?.data?.token;
+
+if (!accessToken) {
+  throw new Error("Login succeeded, but the access token was not found.");
+}
+
+tokenStorage.set(accessToken);
+
+notify.success("Logged in successfully");
+navigate(HOME_PATH, { replace: true });
+      }
     } catch (err) {
-      setFormError(err?.message || "We couldn't log you in. Please try again.");
+      const message = err?.message || "We couldn't log you in. Please try again.";
+      setFormError(message);
+      notify.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -146,31 +179,33 @@ export default function LoginPage({ onSubmit, onGoogleSignIn, className }) {
           </h1>
 
           <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
-            {/* email */}
+            {/* email or mobile */}
             <div>
-              <label htmlFor={emailId} className="mb-2 block font-body text-sm font-medium text-body">
-                Email address
+              <label htmlFor={identifierId} className="mb-2 block font-body text-sm font-medium text-body">
+                Email address / Mobile number
               </label>
               <div className="relative">
-                <Mail aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+                <User aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
                 <input
-                  id={emailId}
-                  name="email"
-                  type="email"
+                  id={identifierId}
+                  name="identifier"
+                  type="text"
                   inputMode="email"
-                  autoComplete="email"
-                  placeholder="Enter your email"
-                  value={values.email}
+                  autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  placeholder="Enter your email or mobile number"
+                  value={values.identifier}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  aria-invalid={!!showError("email")}
-                  aria-describedby={`${emailId}-error`}
-                  className={inputClass("email")}
+                  aria-invalid={!!showError("identifier")}
+                  aria-describedby={`${identifierId}-error`}
+                  className={inputClass("identifier")}
                 />
               </div>
               {/* reserved height so the layout never jumps */}
-              <p id={`${emailId}-error`} role="alert" className="mt-1.5 min-h-5 font-body text-xs text-error">
-                {showError("email") || ""}
+              <p id={`${identifierId}-error`} role="alert" className="mt-1.5 min-h-5 font-body text-xs text-error">
+                {showError("identifier") || ""}
               </p>
             </div>
 

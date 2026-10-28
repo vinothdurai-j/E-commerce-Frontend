@@ -1,9 +1,11 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { User, Package, Heart, MapPin, KeyRound, LogOut } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { tokenStorage } from "@/utils/tokenStorage";
 import useClickOutside from "@/hooks/useClickOutside";
+import { notify } from "@/utils/toast";
 
 const items = [
   { label: "My Profile", to: ROUTES.PROFILE, icon: User },
@@ -17,15 +19,29 @@ export default function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   useClickOutside(ref, () => setOpen(false));
 
-  // TODO: AuthContext ready aanadhum useAuth() use pannunga
-  const isLoggedIn = Boolean(tokenStorage.get());
+  // Re-renders automatically on login, logout, or logout in another tab.
+  // TODO: replace with useAuth() once AuthContext is ready.
+  const token = useSyncExternalStore(
+    tokenStorage.subscribe,
+    tokenStorage.get,
+    tokenStorage.get
+  );
+  const isLoggedIn = Boolean(token);
+
+  // runs only after the user clicks "Confirm" in the toast
+  const performLogout = () => {
+    tokenStorage.clear(); // access token + refresh token + stored user
+    queryClient.clear(); // drop all cached server data (cart, wishlist, orders)
+    navigate(ROUTES.LOGIN, { replace: true }); // Back button can't return to protected pages
+    notify.success("Logged out successfully");
+  };
 
   const logout = () => {
-    tokenStorage.clear();
-    setOpen(false);
-    navigate(ROUTES.LOGIN);
+    setOpen(false); // close the menu first
+    notify.confirm("Are you sure you want to logout?", performLogout);
   };
 
   const item =
@@ -36,6 +52,8 @@ export default function ProfileMenu() {
       <button
         type="button"
         aria-label="Account"
+        aria-expanded={open}
+        aria-haspopup="menu"
         onClick={() => setOpen((v) => !v)}
         className="rounded-full p-2 text-display transition-colors duration-200 hover:text-terracotta"
       >
@@ -51,7 +69,11 @@ export default function ProfileMenu() {
                   <Icon size={16} /> {label}
                 </Link>
               ))}
-              <button onClick={logout} className={`${item} mt-1 border-t border-line pt-3`}>
+              <button
+                type="button"
+                onClick={logout}
+                className={`${item} mt-1 border-t border-line pt-3`}
+              >
                 <LogOut size={16} /> Logout
               </button>
             </>
