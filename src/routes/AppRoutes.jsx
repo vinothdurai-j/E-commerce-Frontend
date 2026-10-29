@@ -17,6 +17,7 @@ const OrderSuccess = lazy(() => import("@/pages/OrderSuccess"));
 const Orders = lazy(() => import("@/pages/Orders"));
 const Wishlist = lazy(() => import("@/pages/Wishlist"));
 const Profile = lazy(() => import("@/pages/Profile"));
+const Addresses = lazy(() => import("@/pages/Addresses"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const Login = lazy(() => import("@/pages/auth/Login"));
@@ -49,6 +50,7 @@ export default function AppRoutes() {
             <Route path={ROUTES.ORDERS} element={<Orders />} />
             <Route path={ROUTES.WISHLIST} element={<Wishlist />} />
             <Route path={ROUTES.PROFILE} element={<Profile />} />
+              <Route path={ROUTES.PROFILE_ADDRESSES} element={<Addresses />} />
             <Route path={ROUTES.CATEGORY} element={<Products />} />
 <Route path={ROUTES.SUBCATEGORY} element={<Products />} />
 <Route path={ROUTES.OFFERS} element={<Products />} />

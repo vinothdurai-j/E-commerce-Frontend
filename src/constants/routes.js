@@ -13,10 +13,13 @@ export const ROUTES = {
   ORDERS: "/orders",
   WISHLIST: "/wishlist",
   PROFILE: "/profile",
+  PROFILE_ADDRESSES: "/profile/addresses",
+  PROFILE_PASSWORD: "/profile/password",
 
   LOGIN: "/pages/auth/Login",
   REGISTER: "/pages/auth/Register",
   FORGOT_PASSWORD: "/pages/auth/ForgotPassword",
+
 
   ABOUT: "/about",
   CONTACT: "/contact",

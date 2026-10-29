@@ -3,11 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/utils/cn";
-import { tokenStorage } from "@/utils/tokenStorage";
+import useAuth from "@/hooks/useAuth";
 import useLogin from "@/hooks/useLogin";
 import { notify } from "@/utils/toast"; // change to the real path of your toast file
 /*
- * IMAGE: assumes BG-Login.png is in src/assets/images/. File names are case-sensitive
+ * IMAGE: assumes login-01.png is in src/assets/images/. File names are case-sensitive
  * on Linux/Vercel/Netlify, so the name below must match the real file exactly.
  */
 import loginBg from "@/assets/images/login-01.png";
@@ -50,7 +50,7 @@ function GoogleLogo() {
 }
 
 /*
- * Props (both optional):
+ * Props (all optional):
  *  - onSubmit({ identifier, password }): if a parent passes it, it is used instead of the built-in API call.
  *  - onGoogleSignIn(): plug in your real OAuth start here.
  * Without onSubmit, the page logs in through the useLogin hook (TanStack Query -> service).
@@ -60,6 +60,7 @@ export default function LoginPage({ onSubmit, onGoogleSignIn, className }) {
   const passwordId = useId();
   const navigate = useNavigate();
   const { login } = useLogin();
+  const { setAuth } = useAuth();
 
   const [values, setValues] = useState({ identifier: "", password: "" });
   const [touched, setTouched] = useState({});
@@ -96,26 +97,25 @@ export default function LoginPage({ onSubmit, onGoogleSignIn, className }) {
         identifier: values.identifier.trim(),
         password: values.password,
       };
+
       if (onSubmit) {
         await onSubmit(payload);
       } else {
-      const data = await login(payload);
+        const res = await login(payload);
 
-// Save the access token after successful login
-const accessToken =
-  data?.accessToken ??
-  data?.token ??
-  data?.data?.accessToken ??
-  data?.data?.token;
+        // response shape: { message, data: { token, user } }
+        const token = res?.data?.token ?? res?.token;
+        const user = res?.data?.user ?? res?.user;
 
-if (!accessToken) {
-  throw new Error("Login succeeded, but the access token was not found.");
-}
+        if (!token) {
+          throw new Error("Login succeeded, but the access token was not found.");
+        }
 
-tokenStorage.set(accessToken);
+        // saves token + user together and updates the UI everywhere
+        setAuth({ token, user });
 
-notify.success("Logged in successfully");
-navigate(HOME_PATH, { replace: true });
+        notify.success("Logged in successfully");
+        navigate(HOME_PATH, { replace: true });
       }
     } catch (err) {
       const message = err?.message || "We couldn't log you in. Please try again.";
@@ -145,8 +145,13 @@ navigate(HOME_PATH, { replace: true });
     );
 
   return (
-    <main /* fixed + z-50: full-screen even when a parent layout (logo, white card) wraps this page */
-    className={cn("fixed inset-0 z-50 isolate overflow-y-auto overflow-x-hidden bg-canvas font-body", className)}>
+    <main
+      /* fixed + z-50: full-screen even when a parent layout (logo, white card) wraps this page */
+      className={cn(
+        "fixed inset-0 z-50 isolate overflow-y-auto overflow-x-hidden bg-canvas font-body",
+        className
+      )}
+    >
       {/* background: the original image, only repositioned (never edited) */}
       <img
         src={loginBg}

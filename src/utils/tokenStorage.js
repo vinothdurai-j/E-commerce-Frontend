@@ -1,6 +1,6 @@
 const ACCESS_KEY = "token";
-const REFRESH_KEY = "refreshToken"; // remove if you don't use one
-const USER_KEY = "user"; // remove if you don't store one
+const REFRESH_KEY = "refreshToken";
+const USER_KEY = "user";
 const EVENT = "auth-change";
 
 const emit = () => window.dispatchEvent(new Event(EVENT));
@@ -13,9 +13,25 @@ export const tokenStorage = {
   },
 
   getRefresh: () => localStorage.getItem(REFRESH_KEY),
-  setRefresh: (token) => localStorage.setItem(REFRESH_KEY, token),
+  setRefresh: (token) => {
+    localStorage.setItem(REFRESH_KEY, token);
+    emit();
+  },
 
-  // clears everything auth-related and notifies the UI
+  // raw JSON string, so useSyncExternalStore gets a stable snapshot
+  getUserRaw: () => localStorage.getItem(USER_KEY),
+  getUser: () => {
+    try {
+      return JSON.parse(localStorage.getItem(USER_KEY));
+    } catch {
+      return null;
+    }
+  },
+  setUser: (user) => {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    emit();
+  },
+
   clear: () => {
     localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(REFRESH_KEY);
@@ -23,7 +39,6 @@ export const tokenStorage = {
     emit();
   },
 
-  // "storage" fires when another tab logs in or out, so all tabs stay in sync
   subscribe: (callback) => {
     window.addEventListener(EVENT, callback);
     window.addEventListener("storage", callback);

@@ -11,8 +11,8 @@ const items = [
   { label: "My Profile", to: ROUTES.PROFILE, icon: User },
   { label: "My Orders", to: ROUTES.ORDERS, icon: Package },
   { label: "Wishlist", to: ROUTES.WISHLIST, icon: Heart },
-  { label: "Saved Addresses", to: `${ROUTES.PROFILE}?tab=addresses`, icon: MapPin },
-  { label: "Change Password", to: `${ROUTES.PROFILE}?tab=password`, icon: KeyRound },
+  { label: "Saved Addresses", to: ROUTES.PROFILE_ADDRESSES, icon: MapPin },
+  { label: "Change Password", to: ROUTES.PROFILE_PASSWORD, icon: KeyRound },
 ];
 
 export default function ProfileMenu() {
