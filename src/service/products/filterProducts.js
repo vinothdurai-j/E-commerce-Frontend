@@ -1,14 +1,13 @@
-// products/filterProducts.js
-import axiosInstance from "../axiosInstance";
+import axiosInstance from "@/service/axiosInstance";
 
-const filterProducts = async (filters) => {
+export const filterProducts = async (params = {}) => {
   try {
-    const response = await axiosInstance.get("/filterProducts", { params: filters });
-    return response?.data;
+    const body = await axiosInstance.get("/filterProducts", { params, silent: true });
+    return { data: body?.data ?? [], count: body?.count ?? 0 };
   } catch (err) {
-    console.log(err);
+    if (err.response?.status === 404) return { data: [], count: 0 };
     throw err;
   }
 };
 
-export default filterProducts;
+export default filterProducts; // rendu import style-um work aagum

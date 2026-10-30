@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, X } from "lucide-react";
 import {
-  CATEGORIES,
   SHOP_LINKS,
   OFFER_LINKS,
   INFO_LINKS,
   categoryPath,
 } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
+import { useCategories } from "@/hooks/useCategories";
 import { cn } from "@/utils/cn";
 
 function Accordion({ label, children, nested }) {
@@ -32,6 +32,7 @@ function Accordion({ label, children, nested }) {
 }
 
 export default function MobileMenu({ open, onClose }) {
+  const { data: categories = [] } = useCategories();
   const link = "block py-2 text-sm text-body hover:text-terracotta";
 
   return (
@@ -69,12 +70,15 @@ export default function MobileMenu({ open, onClose }) {
         </Accordion>
 
         <Accordion label="Categories">
-          {CATEGORIES.map((cat) => (
-            <Accordion key={cat.slug} label={cat.name} nested>
+          {categories.length === 0 && (
+            <p className="py-2 text-sm text-muted">No categories available.</p>
+          )}
+          {categories.map((cat) => (
+            <Accordion key={cat.id ?? cat.slug} label={cat.name} nested>
               <Link to={categoryPath(cat.slug)} onClick={onClose} className={cn(link, "font-medium")}>
                 View all {cat.name}
               </Link>
-              {cat.items.map((i) => (
+              {(cat.items ?? []).map((i) => (
                 <Link
                   key={i.slug}
                   to={categoryPath(cat.slug, i.slug)}

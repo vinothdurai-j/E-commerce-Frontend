@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import getAllProducts from "@/service/products/getAllProducts";
 import getProductById from "@/service/products/getProductById";
-import filterProducts from "@/service/products/filterProducts";
+import {filterProducts } from "@/service/products/filterProducts.js";
 import createProduct from "@/service/products/createProduct";
 import updateProduct from "@/service/products/updateProduct";
 import deleteProduct from "@/service/products/deleteProduct";

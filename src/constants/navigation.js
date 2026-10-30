@@ -9,6 +9,7 @@ const make = (name, items) => ({
   items: items.map((n) => ({ name: n, slug: slugify(n) })),
 });
 
+// Fallback + source of subcategory links (backend has no subcategory support yet)
 export const CATEGORIES = [
   make("Men", ["T-Shirts", "Shirts", "Jeans", "Trousers", "Shoes", "Watches", "Accessories"]),
   make("Women", ["Kurtis", "Sarees", "Dresses", "Tops", "Jeans", "Handbags", "Footwear", "Jewellery"]),
@@ -18,6 +19,9 @@ export const CATEGORIES = [
   make("Sports & Fitness", ["Sportswear", "Gym Equipment", "Fitness Accessories"]),
   make("Toys & Kids", ["Kids Clothing", "Toys", "Baby Care", "School Supplies"]),
 ];
+
+// Subcategory links keyed by category slug (until backend supports them)
+export const SUB_ITEMS = Object.fromEntries(CATEGORIES.map((c) => [c.slug, c.items]));
 
 export const SHOP_LINKS = [
   { label: "All Products", to: ROUTES.PRODUCTS },

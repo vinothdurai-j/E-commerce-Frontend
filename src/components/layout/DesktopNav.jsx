@@ -1,7 +1,8 @@
 import { Link, NavLink } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
-import { CATEGORIES, SHOP_LINKS, OFFER_LINKS, categoryPath } from "@/constants/navigation";
+import { SHOP_LINKS, OFFER_LINKS, categoryPath } from "@/constants/navigation";
 import { ROUTES } from "@/constants/routes";
+import { useCategories } from "@/hooks/useCategories";
 import { cn } from "@/utils/cn";
 
 const trigger =
@@ -18,8 +19,6 @@ function SimpleDropdown({ label, links }) {
         <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
       </button>
       <div className={cn(panel, "left-0 min-w-56 p-2")}>
-
-        
         {links.map((l) => (
           <Link
             key={l.label}
@@ -35,16 +34,16 @@ function SimpleDropdown({ label, links }) {
 }
 
 export default function DesktopNav() {
+  const { data: categories = [] } = useCategories();
+
   return (
     <nav className="relative mx-auto hidden max-w-7xl items-center gap-8 px-6 lg:flex">
       <NavLink
         to={ROUTES.HOME}
         end
-        className={({ isActive }) =>
-          cn(trigger, isActive && "text-terracotta")
-        }
+        className={({ isActive }) => cn(trigger, isActive && "text-terracotta")}
       >
-        Homess
+        Home
       </NavLink>
 
       <SimpleDropdown label="Shop" links={SHOP_LINKS} />
@@ -56,30 +55,34 @@ export default function DesktopNav() {
           <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />
         </button>
         <div className={cn(panel, "left-0 right-0 p-6")}>
-          <div className="grid grid-cols-7 gap-6">
-            {CATEGORIES.map((cat) => (
-              <div key={cat.slug}>
-                <Link
-                  to={categoryPath(cat.slug)}
-                  className="font-heading text-base font-semibold text-display hover:text-terracotta"
-                >
-                  {cat.name}
-                </Link>
-                <ul className="mt-3 space-y-2">
-                  {cat.items.map((item) => (
-                    <li key={item.slug}>
-                      <Link
-                        to={categoryPath(cat.slug, item.slug)}
-                        className="text-sm text-body hover:text-terracotta"
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {categories.length === 0 ? (
+            <p className="text-sm text-muted">No categories available.</p>
+          ) : (
+            <div className="grid grid-cols-7 gap-6">
+              {categories.map((cat) => (
+                <div key={cat.id ?? cat.slug}>
+                  <Link
+                    to={categoryPath(cat.slug)}
+                    className="font-heading text-base font-semibold text-display hover:text-terracotta"
+                  >
+                    {cat.name}
+                  </Link>
+                  <ul className="mt-3 space-y-2">
+                    {(cat.items ?? []).map((item) => (
+                      <li key={item.slug}>
+                        <Link
+                          to={categoryPath(cat.slug, item.slug)}
+                          className="text-sm text-body hover:text-terracotta"
+                        >
+                          {item.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

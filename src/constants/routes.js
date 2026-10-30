@@ -16,10 +16,9 @@ export const ROUTES = {
   PROFILE_ADDRESSES: "/profile/addresses",
   PROFILE_PASSWORD: "/profile/password",
 
-  LOGIN: "/pages/auth/Login",
-  REGISTER: "/pages/auth/Register",
-  FORGOT_PASSWORD: "/pages/auth/ForgotPassword",
-
+  LOGIN: "/login",
+  REGISTER: "/register",
+  FORGOT_PASSWORD: "/forgot-password",
 
   ABOUT: "/about",
   CONTACT: "/contact",

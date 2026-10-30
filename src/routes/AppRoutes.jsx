@@ -8,6 +8,7 @@ import AdminLayout from "@/layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
 
+
 const Home = lazy(() => import("@/pages/Home"));
 const Products = lazy(() => import("@/pages/Products"));
 const ProductDetails = lazy(() => import("@/pages/ProductDetails"));

@@ -1,15 +1,14 @@
-// products/getSuggestions.js
 import axiosInstance from "../axiosInstance";
 
 const getSuggestions = async (q) => {
   try {
-    const response = await axiosInstance.get("/filterProducts", {
-      params: { search: q, limit: 6 }, // param names backend-ku match pannanum
+    const body = await axiosInstance.get("/filterProducts", {
+      params: { search: q },
       silent: true,
     });
-    return response?.data ?? [];
+    return (body?.data ?? []).slice(0, 6); // limit frontend-la
   } catch (err) {
-    console.log(err);
+    if (err.response?.status === 404) return [];
     throw err;
   }
 };
