@@ -3,17 +3,17 @@ import heroImg from "@/assets/images/Hero-1.png";
 import ServiceBenefits from "@/components/home/ServiceBenefits";
 import HeroFloatingCollage from "@/components/home/Herofloatingcollage";
 import ShopByCategory from "@/components/home/ShopByCategory";
-import CollectionBanner from "@/components/home/CollectionBanner";
-import BestSellers from "@/components/home/BestSellers";
 import Button from "@/components/common/Button";
 import { ROUTES } from "@/constants/routes";
 import { useBestSellers } from "@/hooks/useBestSellers";
 import { useWishlist } from "@/hooks/useWishlist";
 import CategoryShowcase from "@/components/home/CategoryShowcase";
-import StickyOverlay from "@/components/home/StickyOverlay";
 import Discountbanner from "@/components/home/Discountbanner";
-  import NewCollection from "@/components/home/NewCollection";
 import Testimonials from "@/components/home/Testimonials";
+import CollectionBanner from "@/components/home/CollectionBanner.jsx";
+import BestSellers from "@/components/home/Bestsellers.jsx";
+import StickyOverlay from "@/components/home/Stickyoverlay.jsx";
+import NewCollection from "@/components/home/Newcollection.jsx";
 
 export default function Home() {
   const { data, isLoading } = useBestSellers();
