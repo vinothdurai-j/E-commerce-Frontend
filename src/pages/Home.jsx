@@ -10,10 +10,10 @@ import { useWishlist } from "@/hooks/useWishlist";
 import CategoryShowcase from "@/components/home/CategoryShowcase";
 import Discountbanner from "@/components/home/Discountbanner";
 import Testimonials from "@/components/home/Testimonials";
-import CollectionBanner from "@/components/home/CollectionBanner.jsx";
 import BestSellers from "@/components/home/Bestsellers.jsx";
 import StickyOverlay from "@/components/home/Stickyoverlay.jsx";
 import NewCollection from "@/components/home/Newcollection.jsx";
+import CollectionBanner from "@/components/home/Collectionbanner.jsx";
 
 export default function Home() {
   const { data, isLoading } = useBestSellers();
