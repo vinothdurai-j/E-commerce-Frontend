@@ -4,6 +4,7 @@ import addAddress from "@/service/address/addAddress";
 import updateAddress from "@/service/address/updateAddress";
 import deleteAddress from "@/service/address/deleteAddress";
 import setDefault from "@/service/address/setDefault";
+import useAuth from "@/hooks/useAuth";
 import { notify } from "@/utils/toast";
 
 const KEY = ["addresses"];
@@ -11,12 +12,15 @@ const KEY = ["addresses"];
 // backend array or { addresses: [...] } edhu anuppinaalum work aagum
 const normalize = (res) => (Array.isArray(res) ? res : res?.addresses ?? res?.data ?? []);
 
-export const useAddresses = () =>
-  useQuery({
+export const useAddresses = () => {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
     queryKey: KEY,
     queryFn: getMyAddresses,
     select: normalize,
+    enabled: !!isAuthenticated,
   });
+};
 
 const useAddressMutation = (fn, successMsg) => {
   const qc = useQueryClient();
@@ -26,8 +30,7 @@ const useAddressMutation = (fn, successMsg) => {
       qc.invalidateQueries({ queryKey: KEY });
       notify.success(successMsg);
     },
-    onError: (err) =>
-      notify.error(err?.response?.data?.message || "Something went wrong"),
+    onError: (err) => notify.error(err?.response?.data?.message || "Something went wrong"),
   });
 };
 

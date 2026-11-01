@@ -1,4 +1,3 @@
-// src/hooks/useCart.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useAuth from "@/hooks/useAuth";
 import getMyCart from "@/service/cart/getMyCart";
@@ -9,7 +8,7 @@ import clearCart from "@/service/cart/clearCart";
 
 export const CART_KEY = ["cart"];
 
-// backend shape: array illa na { items: [...] } rendume handle pannum
+// response: { items: [...], totalItems, totalAmount }
 const normalize = (data) => {
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.items)) return data.items;
@@ -20,7 +19,7 @@ const normalize = (data) => {
 const getQty = (item) => item.quantity ?? item.qty ?? 1;
 
 export function useCart() {
-  const { isAuthenticated } = useAuth(); // un current auth check-a vechukonga (token / isAuthenticated)
+  const { isAuthenticated } = useAuth();
 
   const { data, isLoading } = useQuery({
     queryKey: CART_KEY,
@@ -34,7 +33,7 @@ export function useCart() {
   const totalAmount =
     data?.totalAmount ?? items.reduce((sum, i) => sum + (i.subtotal ?? 0), 0);
 
-  return { items, count, totalAmount, isLoading };
+  return { items, count, totalAmount, isLoading: isAuthenticated && isLoading };
 }
 
 function useCartMutation(mutationFn) {
@@ -45,7 +44,6 @@ function useCartMutation(mutationFn) {
   });
 }
 
-// ProductDetails: mutate({ productId, quantity })
 export const useAddToCart = () => useCartMutation(addToCart);
 export const useUpdateQuantity = () => useCartMutation(updateQuantity);
 export const useRemoveItem = () => useCartMutation(removeItem);
