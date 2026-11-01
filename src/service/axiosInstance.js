@@ -16,15 +16,23 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (res) => res.data,
   (err) => {
-    const status = err.response?.status;
-    const message = err.response?.data?.message || "Something went wrong";
+    const silent = err.config?.silent;
+
+    if (!err.response) {
+      if (!silent) notify.error("Cannot reach the server. Please check your connection.");
+      return Promise.reject(err);
+    }
+
+    const status = err.response.status;
+    const message = err.response.data?.message || "Something went wrong";
 
     if (status === 401) {
       tokenStorage.clear();
-      if (!window.location.pathname.startsWith("/login")) {
-        window.location.href = "/login";
+      const { pathname, search } = window.location;
+      if (!pathname.startsWith("/login")) {
+        window.location.href = `/login?next=${encodeURIComponent(pathname + search)}`;
       }
-    } else if (!err.config?.silent) {
+    } else if (!silent) {
       notify.error(message);
     }
     return Promise.reject(err);

@@ -45,6 +45,12 @@ export default function AppRoutes() {
           <Route path={ROUTES.PRODUCT_DETAILS} element={<ProductDetails />} />
           <Route path={ROUTES.CART} element={<Cart />} />
 
+
+          <Route path={ROUTES.CATEGORY} element={<Products />} />
+<Route path={ROUTES.SUBCATEGORY} element={<Products />} />
+<Route path={ROUTES.OFFERS} element={<Products />} />
+<Route path={ROUTES.SEARCH} element={<Products />} />
+
           <Route element={<ProtectedRoute />}>
             <Route path={ROUTES.CHECKOUT} element={<Checkout />} />
             <Route path={ROUTES.ORDER_SUCCESS} element={<OrderSuccess />} />

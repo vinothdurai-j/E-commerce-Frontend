@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate ,useLocation} from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, User } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/utils/cn";
@@ -55,10 +55,23 @@ function GoogleLogo() {
  *  - onGoogleSignIn(): plug in your real OAuth start here.
  * Without onSubmit, the page logs in through the useLogin hook (TanStack Query -> service).
  */
+
+
+  const getNext = () => {
+    const q = new URLSearchParams(location.search).get("next");
+    const from = location.state?.from;
+    const target = q || (from ? from.pathname + (from.search ?? "") : HOME_PATH);
+    return target.startsWith("/") && !target.startsWith("//") ? target : HOME_PATH;
+  };
+
+  
+
 export default function LoginPage({ onSubmit, onGoogleSignIn, className }) {
   const identifierId = useId();
   const passwordId = useId();
   const navigate = useNavigate();
+    const location = useLocation();
+
   const { login } = useLogin();
   const { setAuth } = useAuth();
 
@@ -115,7 +128,7 @@ export default function LoginPage({ onSubmit, onGoogleSignIn, className }) {
         setAuth({ token, user });
 
         notify.success("Logged in successfully");
-        navigate(HOME_PATH, { replace: true });
+        navigate(getNext(), { replace: true });
       }
     } catch (err) {
       const message = err?.message || "We couldn't log you in. Please try again.";

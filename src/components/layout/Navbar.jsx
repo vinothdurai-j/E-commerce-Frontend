@@ -6,6 +6,11 @@ import SearchBar from "./SearchBar";
 import DesktopNav from "./DesktopNav";
 import ProfileMenu from "./ProfileMenu";
 import MobileMenu from "./MobileMenu";
+import useCart from "@/hooks/useCart";
+import { useAddToCart } from "@/hooks/useCart"; 
+
+
+
 
 function IconLink({ to, label, count = 0, children }) {
   return (
@@ -26,9 +31,9 @@ function IconLink({ to, label, count = 0, children }) {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const { count: cartCount } = useCart();
   // TODO: useCart() / useWishlist() ready aanadhum replace pannunga
-  const cartCount = 0;
+  // const cartCount = 0;
   const wishlistCount = 0;
 
   return (
