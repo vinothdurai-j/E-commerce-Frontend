@@ -310,7 +310,14 @@ export default function BestSellers({
         >
           Best Sellers
         </h2>
-
+        <div className="mt-3 text-center">
+          <Link
+            to={ROUTES.BEST_SELLERS}
+            className="font-body text-base font-medium text-display underline underline-offset-4 hover:text-terracotta"
+          >
+            View All Best Sellers
+          </Link>
+        </div>
         <div className="mt-8 sm:mt-10">
           {isLoading ? (
             <Skeleton />

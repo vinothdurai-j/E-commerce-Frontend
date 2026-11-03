@@ -42,6 +42,7 @@ export default function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path={ROUTES.HOME} element={<Home />} />
           <Route path={ROUTES.PRODUCTS} element={<Products />} />
+          <Route path={ROUTES.BEST_SELLERS} element={<Products />} />
           <Route path={ROUTES.PRODUCT_DETAILS} element={<ProductDetails />} />
           <Route path={ROUTES.CART} element={<Cart />} />
 

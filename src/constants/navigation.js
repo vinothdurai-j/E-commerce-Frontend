@@ -27,8 +27,7 @@ export const SHOP_LINKS = [
   { label: "All Products", to: ROUTES.PRODUCTS },
   { label: "Shop by Brand", to: `${ROUTES.PRODUCTS}?view=brands` },
   { label: "New Arrivals", to: `${ROUTES.PRODUCTS}?tag=new-arrivals` },
-  { label: "Best Sellers", to: `${ROUTES.PRODUCTS}?tag=best-sellers` },
-  { label: "Trending Products", to: `${ROUTES.PRODUCTS}?tag=trending` },
+{ label: "Best Sellers", to: ROUTES.BEST_SELLERS },  { label: "Trending Products", to: `${ROUTES.PRODUCTS}?tag=trending` },
   { label: "Sale Products", to: `${ROUTES.PRODUCTS}?tag=sale` },
 ];
 

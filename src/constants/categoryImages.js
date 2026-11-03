@@ -21,10 +21,12 @@ import toys from "@/assets/images/toys&kids (2).png";
 
 export const CATEGORY_IMAGES = {
   men: { src: men },
-  women: { src: women },
+  womens: { src: women },
   electronics: { src: electronics },
-  "home-and-living": { src: home, fit: "cover" },
-  "beauty-and-personal-care": { src: beauty },
-  "sports-and-fitness": { src: sports },
-  "toys-and-kids": { src: toys },
+  "home-living": { src: home, fit: "cover" },
+  "beauty-personal-care": { src: beauty },
+  "sports-fitness": { src: sports },
+  "toys-kids": { src: toys },
 };
+
+

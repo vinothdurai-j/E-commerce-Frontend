@@ -220,7 +220,7 @@ export default function ShopByCategory({ className }) {
   const { data: categories = [], isLoading, isError, refetch } = useCategories();
   const { scrollerRef, edge, scrollByPage, onKeyDown } = useCarousel(categories.length);
   const canScroll = !(edge.atStart && edge.atEnd);
-
+console.log(categories.map(c => ({ slug: c.slug, image: c.image })));
   let body;
   if (isLoading) {
     body = <CategorySkeleton />;
