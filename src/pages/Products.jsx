@@ -1,5 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import Pagination from "@/components/common/Pagination";
 import ProductFilters, { FilterDrawer } from "@/components/product/ProductFilters";
@@ -7,6 +13,8 @@ import ProductGrid from "@/components/product/ProductGrid";
 import ProductToolbar from "@/components/product/ProductToolbar";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
+import { useBestSellers } from "@/hooks/useBestSellers";
+import { useWishlist } from "@/hooks/useWishlist";
 import { ROUTES } from "@/constants/routes";
 import { formatPrice, normalizeProduct } from "@/utils/productHelpers";
 import { cn } from "@/utils/cn";
@@ -33,29 +41,30 @@ const toNumber = (v) => {
   return Number.isFinite(n) && n >= 0 ? n : null;
 };
 
-/*
- * WISHLIST ADAPTER: replace this one function with your real wishlist hook.
- * It must return { wishlistIds: Set<string>, onToggleWishlist(productId) }.
- * While onToggleWishlist is undefined, the heart button is hidden on cards.
- */
-const NO_WISHLIST = new Set();
-function useWishlistAdapter() {
-  return { wishlistIds: NO_WISHLIST, onToggleWishlist: undefined };
-}
-
 export default function Products() {
   const [params, setParams] = useSearchParams();
   const { slug: routeSlug } = useParams(); // works if /category/:slug renders this page
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isBestSellers = pathname === ROUTES.BEST_SELLERS;
   const [filtersOpen, setFiltersOpen] = useState(false);
   const closeFilters = useCallback(() => setFiltersOpen(false), []);
 
- const { data: result, isLoading, isError, refetch } = useProducts();
-const { data: categories = [] } = useCategories();
-const { wishlistIds, onToggleWishlist } = useWishlistAdapter();
+  const {
+    data: result,
+    isLoading: productsLoading,
+    isError,
+    refetch,
+  } = useProducts();
+  const { data: bestSellerData } = useBestSellers();
+  const { data: categories = [] } = useCategories();
+  const { ids, toggle: onToggleWishlist } = useWishlist();
+  const wishlistIds = useMemo(() => new Set(ids), [ids]);
 
-const rawProducts = result?.data ?? [];
-const products = useMemo(() => rawProducts.map(normalizeProduct), [rawProducts]);
+  const isLoading = isBestSellers ? false : productsLoading;
+  const rawProducts = isBestSellers ? bestSellerData ?? [] : result?.data ?? [];
+  const products = useMemo(() => rawProducts.map(normalizeProduct), [rawProducts]);
+
   /* ---- URL state ---- */
   const categorySlug = routeSlug ?? params.get("category") ?? "";
   const min = toNumber(params.get("min"));
@@ -134,8 +143,10 @@ const products = useMemo(() => rawProducts.map(normalizeProduct), [rawProducts])
       if (rating && (p.rating ?? 0) < rating) return false;
       return true;
     });
+    // Best sellers dummy data has no createdAt, so keep its own order by default
+    if (isBestSellers && sort === "newest") return filtered;
     return filtered.sort(SORTS[sort].fn);
-  }, [products, categorySlug, min, max, stock, discount, rating, sort]);
+  }, [products, categorySlug, min, max, stock, discount, rating, sort, isBestSellers]);
 
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const page = Math.min(pageParam, totalPages); // never an invalid page
@@ -243,7 +254,7 @@ const products = useMemo(() => rawProducts.map(normalizeProduct), [rawProducts])
                   </Link>
                 ) : (
                   <span aria-current="page" className="text-display">
-                    Products
+                    {isBestSellers ? "Best Sellers" : "Products"}
                   </span>
                 )}
               </li>
@@ -259,10 +270,12 @@ const products = useMemo(() => rawProducts.map(normalizeProduct), [rawProducts])
           </nav>
 
           <h1 className="mt-4 font-heading text-3xl font-semibold text-display sm:text-4xl">
-            {categoryName ?? "Discover Your Style"}
+            {isBestSellers ? "Best Sellers" : categoryName ?? "Discover Your Style"}
           </h1>
           <p className="mt-2 max-w-xl font-body text-muted">
-            Explore our latest collections, crafted for every occasion.
+            {isBestSellers
+              ? "Our most loved products, picked by customers like you."
+              : "Explore our latest collections, crafted for every occasion."}
             {!isLoading && !isError && ` ${products.length} products available.`}
           </p>
         </header>
@@ -330,7 +343,7 @@ const products = useMemo(() => rawProducts.map(normalizeProduct), [rawProducts])
             <ProductGrid
               products={pageItems}
               isLoading={isLoading}
-              isError={isError}
+              isError={isBestSellers ? false : isError}
               onRetry={() => refetch()}
               hasActiveFilters={chips.length > 0}
               onClearFilters={clearAll}

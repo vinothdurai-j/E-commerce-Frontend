@@ -5,6 +5,7 @@ import EmptyState from "@/components/common/EmptyState";
 import { useMyOrders, useCancelOrder } from "@/hooks/useOrders";
 import { ROUTES } from "@/constants/routes";
 import { formatPrice } from "@/utils/productHelpers";
+import { notify } from "@/utils/toast";
 import { cn } from "@/utils/cn";
 
 const STATUS_STYLES = {
@@ -42,8 +43,9 @@ export default function Orders() {
   const cancel = useCancelOrder();
 
   const handleCancel = (id) => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
-    cancel.mutate({ id });
+    notify.confirm("Are you sure you want to cancel this order?", () => {
+      cancel.mutate({ id });
+    });
   };
 
   return (
