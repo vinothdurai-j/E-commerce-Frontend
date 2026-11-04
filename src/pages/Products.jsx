@@ -20,6 +20,7 @@ import { formatPrice, normalizeProduct } from "@/utils/productHelpers";
 import { cn } from "@/utils/cn";
 
 const PAGE_SIZE = 12;
+const NEW_ARRIVAL_DAYS = 30;
 
 const SORTS = {
   newest: { label: "Newest", fn: (a, b) => b.createdAt - a.createdAt },
@@ -35,6 +36,12 @@ const SORTS = {
   rating: { label: "Customer rating", fn: (a, b) => (b.rating ?? 0) - (a.rating ?? 0) },
 };
 
+const TAGS = {
+  "new-arrivals": { title: "New Arrivals", description: "Fresh styles, just landed." },
+  trending: { title: "Trending Products", description: "What everyone is loving right now." },
+  sale: { title: "Sale Products", description: "Great styles at even better prices." },
+};
+
 const toNumber = (v) => {
   if (v === null || v === "") return null;
   const n = Number(v);
@@ -48,6 +55,8 @@ export default function Products() {
   const { pathname } = useLocation();
   const isBestSellers = pathname === ROUTES.BEST_SELLERS;
   const showBrands = params.get("view") === "brands";
+  const tag = params.get("tag") ?? "";
+  const tagInfo = TAGS[tag] ?? null;
   const [filtersOpen, setFiltersOpen] = useState(false);
   const closeFilters = useCallback(() => setFiltersOpen(false), []);
 
@@ -117,6 +126,7 @@ export default function Products() {
     const next = new URLSearchParams();
     if (params.get("sort")) next.set("sort", params.get("sort"));
     if (showBrands) next.set("view", "brands");
+    if (tag) next.set("tag", tag);
     setParams(next, { replace: true });
   };
 
@@ -144,9 +154,13 @@ export default function Products() {
   }, [products]);
 
   const results = useMemo(() => {
+    const cutoff = Date.now() - NEW_ARRIVAL_DAYS * 24 * 60 * 60 * 1000;
+
     const filtered = products.filter((p) => {
       if (categorySlug && p.categorySlug !== categorySlug) return false;
       if (brand && p.brand !== brand) return false;
+      if (tag === "sale" && !p.discount) return false;
+      if (tag === "new-arrivals" && p.createdAt < cutoff) return false;
       if (min !== null && (p.price ?? 0) < min) return false;
       if (max !== null && (p.price ?? 0) > max) return false;
       if (stock === "in" && !p.inStock) return false;
@@ -155,10 +169,35 @@ export default function Products() {
       if (rating && (p.rating ?? 0) < rating) return false;
       return true;
     });
+
     // Best sellers dummy data has no createdAt, so keep its own order by default
     if (isBestSellers && sort === "newest") return filtered;
+
+    // Default ordering for tag pages (when user hasn't picked a sort)
+    if (!sortParam) {
+      if (tag === "sale") return filtered.sort(SORTS.discount.fn);
+      if (tag === "trending") {
+        return filtered.sort(
+          (a, b) => (b.rating ?? 0) - (a.rating ?? 0) || b.createdAt - a.createdAt
+        );
+      }
+    }
+
     return filtered.sort(SORTS[sort].fn);
-  }, [products, categorySlug, brand, min, max, stock, discount, rating, sort, isBestSellers]);
+  }, [
+    products,
+    categorySlug,
+    brand,
+    tag,
+    min,
+    max,
+    stock,
+    discount,
+    rating,
+    sort,
+    sortParam,
+    isBestSellers,
+  ]);
 
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const page = Math.min(pageParam, totalPages); // never an invalid page
@@ -251,7 +290,19 @@ export default function Products() {
     ? "Best Sellers"
     : showBrands
       ? "Shop by Brand"
-      : categoryName ?? "Discover Your Style";
+      : tagInfo?.title ?? categoryName ?? "Discover Your Style";
+
+  const breadcrumbLabel = isBestSellers
+    ? "Best Sellers"
+    : showBrands
+      ? "Shop by Brand"
+      : tagInfo?.title ?? "Products";
+
+  const pageDescription = isBestSellers
+    ? "Our most loved products, picked by customers like you."
+    : showBrands
+      ? "Pick a brand to see its products."
+      : tagInfo?.description ?? "Explore our latest collections, crafted for every occasion.";
 
   return (
     <div className="bg-canvas">
@@ -279,7 +330,7 @@ export default function Products() {
                   </Link>
                 ) : (
                   <span aria-current="page" className="text-display">
-                    {isBestSellers ? "Best Sellers" : showBrands ? "Shop by Brand" : "Products"}
+                    {breadcrumbLabel}
                   </span>
                 )}
               </li>
@@ -298,11 +349,7 @@ export default function Products() {
             {pageTitle}
           </h1>
           <p className="mt-2 max-w-xl font-body text-muted">
-            {isBestSellers
-              ? "Our most loved products, picked by customers like you."
-              : showBrands
-                ? "Pick a brand to see its products."
-                : "Explore our latest collections, crafted for every occasion."}
+            {pageDescription}
             {!isLoading && !isError && ` ${results.length} products available.`}
           </p>
         </header>
