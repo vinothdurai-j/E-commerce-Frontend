@@ -21,6 +21,7 @@ export function normalizeProduct(p) {
   return {
     id: String(p._id ?? p.id),
     name: p.name ?? "Product",
+    brand: p.brand ?? "",
     category: p.category?.name ?? "",
     categorySlug: p.category?.slug ?? "",
     image: p.images?.[0] ?? null,

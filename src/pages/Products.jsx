@@ -47,6 +47,7 @@ export default function Products() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isBestSellers = pathname === ROUTES.BEST_SELLERS;
+  const showBrands = params.get("view") === "brands";
   const [filtersOpen, setFiltersOpen] = useState(false);
   const closeFilters = useCallback(() => setFiltersOpen(false), []);
 
@@ -67,6 +68,7 @@ export default function Products() {
 
   /* ---- URL state ---- */
   const categorySlug = routeSlug ?? params.get("category") ?? "";
+  const brand = params.get("brand") ?? "";
   const min = toNumber(params.get("min"));
   const max = toNumber(params.get("max"));
   const stock = ["in", "out"].includes(params.get("stock")) ? params.get("stock") : "";
@@ -114,6 +116,7 @@ export default function Products() {
     }
     const next = new URLSearchParams();
     if (params.get("sort")) next.set("sort", params.get("sort"));
+    if (showBrands) next.set("view", "brands");
     setParams(next, { replace: true });
   };
 
@@ -132,9 +135,18 @@ export default function Products() {
     return counts;
   }, [products]);
 
+  const brandList = useMemo(() => {
+    const counts = {};
+    products.forEach((p) => {
+      if (p.brand) counts[p.brand] = (counts[p.brand] ?? 0) + 1;
+    });
+    return Object.entries(counts).map(([name, count]) => ({ name, count }));
+  }, [products]);
+
   const results = useMemo(() => {
     const filtered = products.filter((p) => {
       if (categorySlug && p.categorySlug !== categorySlug) return false;
+      if (brand && p.brand !== brand) return false;
       if (min !== null && (p.price ?? 0) < min) return false;
       if (max !== null && (p.price ?? 0) > max) return false;
       if (stock === "in" && !p.inStock) return false;
@@ -146,7 +158,7 @@ export default function Products() {
     // Best sellers dummy data has no createdAt, so keep its own order by default
     if (isBestSellers && sort === "newest") return filtered;
     return filtered.sort(SORTS[sort].fn);
-  }, [products, categorySlug, min, max, stock, discount, rating, sort, isBestSellers]);
+  }, [products, categorySlug, brand, min, max, stock, discount, rating, sort, isBestSellers]);
 
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const page = Math.min(pageParam, totalPages); // never an invalid page
@@ -163,6 +175,13 @@ export default function Products() {
       key: "category",
       label: categoryName ?? categorySlug,
       onRemove: () => selectCategory(""),
+    });
+  }
+  if (brand) {
+    chips.push({
+      key: "brand",
+      label: brand,
+      onRemove: () => updateParams({ brand: null }),
     });
   }
   if (min !== null || max !== null) {
@@ -228,6 +247,12 @@ export default function Products() {
   const pill =
     "shrink-0 rounded-full border px-4 py-2 font-body text-sm transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta motion-reduce:transition-none";
 
+  const pageTitle = isBestSellers
+    ? "Best Sellers"
+    : showBrands
+      ? "Shop by Brand"
+      : categoryName ?? "Discover Your Style";
+
   return (
     <div className="bg-canvas">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
@@ -254,7 +279,7 @@ export default function Products() {
                   </Link>
                 ) : (
                   <span aria-current="page" className="text-display">
-                    {isBestSellers ? "Best Sellers" : "Products"}
+                    {isBestSellers ? "Best Sellers" : showBrands ? "Shop by Brand" : "Products"}
                   </span>
                 )}
               </li>
@@ -270,15 +295,57 @@ export default function Products() {
           </nav>
 
           <h1 className="mt-4 font-heading text-3xl font-semibold text-display sm:text-4xl">
-            {isBestSellers ? "Best Sellers" : categoryName ?? "Discover Your Style"}
+            {pageTitle}
           </h1>
           <p className="mt-2 max-w-xl font-body text-muted">
             {isBestSellers
               ? "Our most loved products, picked by customers like you."
-              : "Explore our latest collections, crafted for every occasion."}
-            {!isLoading && !isError && ` ${products.length} products available.`}
+              : showBrands
+                ? "Pick a brand to see its products."
+                : "Explore our latest collections, crafted for every occasion."}
+            {!isLoading && !isError && ` ${results.length} products available.`}
           </p>
         </header>
+
+        {/* Brand quick navigation (only on ?view=brands) */}
+        {showBrands && brandList.length > 0 && (
+          <nav aria-label="Brands" className="mt-6">
+            <ul className="flex flex-wrap gap-2">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => updateParams({ brand: null })}
+                  aria-current={!brand ? "true" : undefined}
+                  className={cn(
+                    pill,
+                    !brand
+                      ? "border-terracotta bg-cream text-terracotta"
+                      : "border-line-card bg-card text-display hover:border-terracotta hover:text-terracotta"
+                  )}
+                >
+                  All Brands
+                </button>
+              </li>
+              {brandList.map((b) => (
+                <li key={b.name}>
+                  <button
+                    type="button"
+                    onClick={() => updateParams({ brand: brand === b.name ? null : b.name })}
+                    aria-current={brand === b.name ? "true" : undefined}
+                    className={cn(
+                      pill,
+                      brand === b.name
+                        ? "border-terracotta bg-cream text-terracotta"
+                        : "border-line-card bg-card text-display hover:border-terracotta hover:text-terracotta"
+                    )}
+                  >
+                    {b.name} ({b.count})
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
 
         {/* Category quick navigation */}
         {categories.length > 0 && (
