@@ -464,7 +464,7 @@ export default function Products() {
               wishlistIds={wishlistIds}
               onToggleWishlist={onToggleWishlist}
             />
-
+{/* hhh */}
             <Pagination
               page={page}
               totalPages={totalPages}
@@ -478,6 +478,7 @@ export default function Products() {
       <FilterDrawer open={filtersOpen} onClose={closeFilters} resultCount={results.length}>
         <ProductFilters {...filterProps} />
       </FilterDrawer>
+
     </div>
   );
 }
