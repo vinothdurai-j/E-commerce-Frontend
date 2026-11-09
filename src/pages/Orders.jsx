@@ -18,8 +18,13 @@ const STATUS_STYLES = {
   cancelled: "bg-red-100 text-red-800",
 };
 
-// CHECK: un backend la cancel pannalaam nu irukkura statuses
-const CANCELLABLE = ["pending", "placed", "confirmed"];
+// Statuses where the user can still cancel the order.
+// Confirmed orders are NOT cancellable by default; add "confirmed" back if your backend allows it.
+const CANCELLABLE = ["pending", "placed"];
+
+const PAYMENT_LABELS = {
+  cod: "Cash on delivery",
+};
 
 const formatDate = (value) =>
   value
@@ -76,10 +81,13 @@ export default function Orders() {
           ) : (
             <ul className="space-y-4">
               {orders.map((order) => {
-                const status = String(order.status ?? "pending").toLowerCase();
+                // Backend sends `orderStatus`; fall back to `status` just in case.
+                const status = String(order.orderStatus ?? order.status ?? "pending").toLowerCase();
                 const items = order.items ?? [];
                 const total = order.totalAmount ?? order.total ?? 0;
                 const canCancel = CANCELLABLE.includes(status);
+                const paymentMethod =
+                  PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod ?? "";
 
                 return (
                   <li key={order._id} className="rounded-2xl border border-line-card bg-card p-5">
@@ -88,14 +96,22 @@ export default function Orders() {
                         <p className="font-body text-sm font-semibold text-display">{orderLabel(order)}</p>
                         <p className="font-body text-xs text-muted">{formatDate(order.createdAt)}</p>
                       </div>
-                      <span
-                        className={cn(
-                          "rounded-full px-3 py-1 font-body text-xs font-medium capitalize",
-                          STATUS_STYLES[status] ?? "bg-cream text-display"
+                      <div className="flex flex-col items-end gap-1">
+                        <span
+                          className={cn(
+                            "rounded-full px-3 py-1 font-body text-xs font-medium capitalize",
+                            STATUS_STYLES[status] ?? "bg-cream text-display"
+                          )}
+                        >
+                          {status}
+                        </span>
+                        {paymentMethod && (
+                          <p className="font-body text-xs capitalize text-muted">
+                            {paymentMethod}
+                            {order.paymentStatus ? ` · Payment ${order.paymentStatus}` : ""}
+                          </p>
                         )}
-                      >
-                        {status}
-                      </span>
+                      </div>
                     </div>
 
                     <ul className="mt-4 divide-y divide-line-card border-y border-line-card">
@@ -103,7 +119,7 @@ export default function Orders() {
                         const name = item.product?.name ?? item.name ?? "Product";
                         return (
                           <li
-                            key={item._id ?? item.product?._id ?? idx}
+                            key={item._id ?? item.product?._id ?? item.product ?? idx}
                             className="flex justify-between gap-4 py-2.5 font-body text-sm"
                           >
                             <span className="min-w-0 truncate text-display">
